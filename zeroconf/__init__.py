@@ -1723,7 +1723,7 @@ class ServiceInfo(RecordUpdateListener):
         host_ttl: int = _DNS_HOST_TTL,
         other_ttl: int = _DNS_OTHER_TTL,
         *,
-        addresses: Optional[List[bytes]] = None,
+        addresses: Optional[Union[bytes, List[bytes]]] = None,
         parsed_addresses: Optional[List[str]] = None
     ) -> None:
         # Accept both none, or one, but not both.
@@ -1734,6 +1734,9 @@ class ServiceInfo(RecordUpdateListener):
         self.type = type_
         self.name = name
         if addresses is not None:
+            if isinstance(addresses, bytes):
+                # Single address provided - maintain back-compatibility
+                self._addresses = [addresses]
             self._addresses = addresses
         elif parsed_addresses is not None:
             self._addresses = [_encode_address(a) for a in parsed_addresses]
